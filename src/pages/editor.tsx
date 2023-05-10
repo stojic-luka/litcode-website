@@ -8,6 +8,7 @@ interface Props {
 export default function Editor({ setTitleEvent }: Props) {
   const [params, setParams] = useState<URLSearchParams>();
   const [hasError, setHasError] = useState(false);
+  const [message, setMessage] = useState("");
   const location = useLocation();
 
   useEffect(() => {
@@ -28,13 +29,8 @@ export default function Editor({ setTitleEvent }: Props) {
       "http://localhost:8080/compile",
       {
         id: "1_sumNums",
-        source_code: ,
+        source_code: btoa(message),
         lang: "java",
-      },
-      {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
       }
     );
   };
@@ -61,7 +57,10 @@ export default function Editor({ setTitleEvent }: Props) {
           <span></span>
         </div>
       </div>
-      <div></div>
+      <div>
+        <input type="text" onChange={handleChange}>
+        <button onClick={sendToServer()}>send to server</button>
+      </div>
     </>
   );
 }
