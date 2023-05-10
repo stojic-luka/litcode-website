@@ -53,6 +53,13 @@ export default function Editor({ setTitleEvent }: Props) {
     <>
       <div>
         <div>
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+              <Tab label="Item One" />
+              <Tab label="Item Two" />
+              <Tab label="Item Tri" />
+            </Tabs>
+          </Box>
           <span>{params.get("problem")}</span>
           <span></span>
         </div>
