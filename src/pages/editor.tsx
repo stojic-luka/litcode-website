@@ -1,14 +1,23 @@
-import { useEffect, useState } from "react";
+import { useRef, useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { Box, Tab, Tabs } from "@mui/material";
 import axios from "axios";
+
+import AceEditor from "react-ace";
+import ReactAce from "react-ace/lib/ace";
+
+import { sendCodeToServer, getDefaultCodeFromServer } from "../components/axiosFunctions";
 
 interface Props {
   setTitleEvent: (newTitle: string) => void;
 }
 export default function Editor({ setTitleEvent }: Props) {
+  const codeInputRef = useRef<ReactAce>(null);
+  const selectBoxRef = useRef<HTMLSelectElement>(null);
+
+  const [code, setCode] = useState<string>("");
   const [params, setParams] = useState<URLSearchParams>();
   const [hasError, setHasError] = useState(false);
-  const [message, setMessage] = useState("");
   const location = useLocation();
 
   useEffect(() => {
@@ -24,15 +33,8 @@ export default function Editor({ setTitleEvent }: Props) {
     setParams(new URLSearchParams(location.search));
   }, [location]);
 
-  const sendToServer = () => {
-    axios.post(
-      "http://localhost:8080/compile",
-      {
-        id: "1_sumNums",
-        source_code: btoa(message),
-        lang: "java",
-      }
-    );
+  const handleCodeChange = (newCode: string) => {
+    setCode(newCode);
   };
 
   if (!params?.get("problem")) {
@@ -53,20 +55,54 @@ export default function Editor({ setTitleEvent }: Props) {
     <>
       <div>
         <div>
-          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <Tabs value={value} onChange={handleChange} aria-label="basic tabs example">
+          {/* <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
+            <Tabs>
               <Tab label="Item One" />
               <Tab label="Item Two" />
               <Tab label="Item Tri" />
             </Tabs>
-          </Box>
+          </Box> */}
           <span>{params.get("problem")}</span>
           <span></span>
         </div>
       </div>
       <div>
-        <input type="text" onChange={handleChange}>
-        <button onClick={sendToServer()}>send to server</button>
+        <select
+          ref={selectBoxRef}
+          onChange={async () => {
+            let code = await getDefaultCodeFromServer("1_sumNums", selectBoxRef.current?.value as string);
+            setCode(code);
+          }}
+        >
+          <option value="python">Python</option>
+          <option value="golang">Golang</option>
+          <option value="cpp">C++</option>
+          <option value="csharp">C#</option>
+          <option value="java">Java</option>
+          <option value="javascript">JavaScript</option>
+          <option value="typescript">TypeScript</option>
+        </select>
+        <div style={{ height: "100%", width: 500 }}>
+          <AceEditor
+            ref={codeInputRef}
+            mode={selectBoxRef.current?.value}
+            theme="dracula"
+            value={code}
+            name="asdf"
+            onChange={handleCodeChange}
+            editorProps={{ $blockScrolling: true }}
+            setOptions={{
+              enableBasicAutocompletion: true,
+              enableLiveAutocompletion: true,
+              enableSnippets: true,
+              highlightActiveLine: false,
+              tabSize: 2,
+              showPrintMargin: false,
+              wrap: true,
+            }}
+          />
+        </div>
+        <button onClick={() => sendCodeToServer("1_sumNums", code, selectBoxRef.current?.value as string)}>send to server</button>
       </div>
     </>
   );
