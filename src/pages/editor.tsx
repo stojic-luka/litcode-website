@@ -33,10 +33,6 @@ export default function Editor({ setTitleEvent }: Props) {
     setParams(new URLSearchParams(location.search));
   }, [location]);
 
-  const handleCodeChange = (newCode: string) => {
-    setCode(newCode);
-  };
-
   if (!params?.get("problem")) {
     if (hasError)
       return (
@@ -89,7 +85,9 @@ export default function Editor({ setTitleEvent }: Props) {
             theme="dracula"
             value={code}
             name="asdf"
-            onChange={handleCodeChange}
+            onChange={(newCode: string) => {
+              setCode(newCode);
+            }}
             editorProps={{ $blockScrolling: true }}
             setOptions={{
               enableBasicAutocompletion: true,
